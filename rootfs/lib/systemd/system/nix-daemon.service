@@ -1,0 +1,12 @@
+[Unit]
+Description=Nix Daemon
+RequiresMountsFor=/nix/store
+RequiresMountsFor=/nix/var
+ConditionPathIsReadWrite=/nix/var/nix/daemon-socket
+
+[Service]
+ExecStart=@/nix/var/nix/profiles/system/bin/nix-daemon nix-daemon --daemon
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
