@@ -137,10 +137,11 @@
             inherit (self) tarball;
           };
 
-          rpm = buildLegacyPkg {
-            type = "rpm";
-            inherit (self) tarball;
-          };
+          # Note: Needs additional work
+          # rpm = buildLegacyPkg {
+          #   type = "rpm";
+          #   inherit (self) tarball;
+          # };
 
         });
 
