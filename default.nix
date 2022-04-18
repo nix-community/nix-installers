@@ -134,7 +134,7 @@ lib.fix (self: {
     inherit (self) tarball;
   };
 
-  # Note: Needs additional work
+  # Note: Needs additional work (selinux)
   rpm = buildLegacyPkg {
     type = "rpm";
     inherit (self) tarball;
