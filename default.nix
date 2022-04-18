@@ -74,13 +74,14 @@ let
       ln -s ${profile} nix/var/nix/gcroots/default
       ln -s ${profile} nix/var/nix/profiles/default
       ln -s ${profile} nix/var/nix/profiles/system
+      rm -r nix/var/nix/profiles/per-user/nixbld
 
       for path in $(cat ${closure}/store-paths); do
         cp -va $path nix/store/
       done
 
       # Create a tarball with the Nix store for bootstraping
-      tar -cpzf $out nix
+      tar --owner=0 --group=0 -cpzf $out nix
     ''
   );
 
@@ -132,9 +133,9 @@ lib.fix (self: {
   };
 
   # Note: Needs additional work
-  # rpm = buildLegacyPkg {
-    #   type = "rpm";
-    #   inherit (self) tarball;
-    # };
+  rpm = buildLegacyPkg {
+    type = "rpm";
+    inherit (self) tarball;
+  };
 
 })

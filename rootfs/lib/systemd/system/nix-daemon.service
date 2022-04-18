@@ -2,6 +2,7 @@
 Description=Nix Daemon
 RequiresMountsFor=/nix/store
 RequiresMountsFor=/nix/var
+RequiresMountsFor=/nix/var/nix/db
 ConditionPathIsReadWrite=/nix/var/nix/daemon-socket
 
 [Service]
