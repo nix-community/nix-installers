@@ -90,13 +90,19 @@ let
       type
       , tarball
       , pname ? "nix-multi-user"
-    }: pkgs.runCommand "${pname}-${version}.${type}"
+    }: let
+      ext = {
+        "pacman" = "pkg.tar.zst";
+      }.${type} or type;
+    in pkgs.runCommand "${pname}-${version}.${ext}"
       {
         nativeBuildInputs = [
           pkgs.fpm
         ]
         ++ lib.optional (type == "deb") pkgs.binutils
-        ++ lib.optional (type == "rpm") pkgs.rpm;
+        ++ lib.optional (type == "rpm") pkgs.rpm
+        ++ lib.optionals (type == "pacman") [ pkgs.libarchive pkgs.zstd ]
+        ;
       } ''
       export HOME=$(mktemp -d)
 
@@ -120,7 +126,7 @@ let
         -C rootfs \
         .
 
-      mv *.${type} $out
+      mv *.${ext} $out
     ''
   );
 
@@ -131,6 +137,11 @@ lib.fix (self: {
 
   deb = buildLegacyPkg {
     type = "deb";
+    inherit (self) tarball;
+  };
+
+  pacman = buildLegacyPkg {
+    type = "pacman";
     inherit (self) tarball;
   };
 
