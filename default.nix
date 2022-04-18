@@ -1,6 +1,5 @@
-{
-  pkgs ? import <nixpkgs> { }
-  , lib ? pkgs.lib
+{ pkgs ? import <nixpkgs> { }
+, lib ? pkgs.lib
 }:
 
 let
@@ -87,11 +86,10 @@ let
   );
 
   buildLegacyPkg = (
-    {
-      type
-      , tarball
-      , pname ? "nix-multi-user"
-      , ext ? {
+    { type
+    , tarball
+    , pname ? "nix-multi-user"
+    , ext ? {
         "pacman" = "pkg.tar.zst";
       }.${type} or type
     }: pkgs.runCommand "${pname}-${version}.${ext}"

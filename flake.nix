@@ -9,7 +9,8 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in {
+      in
+      {
         packages = import ./. { inherit pkgs; };
       }
     )
