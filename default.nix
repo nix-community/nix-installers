@@ -114,7 +114,7 @@ let
         -t ${type} \
         --name nix-setup \
         --version ${version} \
-        --after-install ${./postinstall.sh} \
+        --after-install ${./hooks/after-install.sh} \
         -C rootfs \
         .
 
