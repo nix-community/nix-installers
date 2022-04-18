@@ -89,7 +89,8 @@ let
     {
       type
       , tarball
-    }: pkgs.runCommand "nix-setup-${version}.${type}"
+      , pname ? "nix-multi-user"
+    }: pkgs.runCommand "${pname}-${version}.${type}"
       {
         nativeBuildInputs = [
           pkgs.fpm
@@ -112,7 +113,7 @@ let
       ${pkgs.fakeroot}/bin/fakeroot fpm \
         -s dir \
         -t ${type} \
-        --name nix-setup \
+        --name ${pname} \
         --version ${version} \
         --after-install ${./hooks/after-install.sh} \
         --after-remove ${./hooks/after-remove.sh} \
