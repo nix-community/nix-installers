@@ -115,6 +115,7 @@ let
         --name nix-setup \
         --version ${version} \
         --after-install ${./hooks/after-install.sh} \
+        --after-remove ${./hooks/after-remove.sh} \
         -C rootfs \
         .
 
