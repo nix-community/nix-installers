@@ -7,7 +7,7 @@ let
   version = "0.1";
 
   buildNixTarball = (
-    { nix ? pkgs.nixFlakes
+    { nix ? pkgs.nix
     , drvs ? [ ]
     }:
     let
