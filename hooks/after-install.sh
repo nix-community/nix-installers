@@ -29,6 +29,18 @@ if ! test -e /nix/var/nix/db; then
     tar -xzpf /usr/share/nix/nix.tar.gz
 fi
 
+# Inspired by https://github.com/NixOS/nix/pull/2670
+if test -e /sys/fs/selinux; then
+    # Install the Nix SELinux policy
+    semodule -i "/usr/share/selinux/packages/nix.pp"
+
+    # Relabel the SELinux security context
+    restorecon -FR /nix
+
+    # Reexec systemd (is this really required?)
+    systemctl daemon-reexec
+fi
+
 # Enable autostart
 systemctl enable nix-daemon
 systemctl start nix-daemon

@@ -3,7 +3,39 @@
 }:
 
 let
+  inherit (pkgs) stdenv;
+  inherit (builtins) elem baseNameOf;
+
   version = "0.1";
+
+  selinux =
+    let
+      ignores = [
+        "nix.mod"
+        "nix.pp"
+      ];
+      checkIgnore = f: ! elem (baseNameOf f) ignores;
+    in
+    stdenv.mkDerivation {
+      pname = "nix-selinux";
+      inherit version;
+      src = builtins.filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
+
+      nativeBuildInputs = [
+        pkgs.libselinux
+        pkgs.semodule-utils
+        pkgs.checkpolicy
+      ];
+
+      dontConfigure = true;
+
+      installPhase = ''
+        runHook preInstall
+        mkdir $out
+        cp nix.pp $out/
+        runHook postInstall
+      '';
+    };
 
   buildNixTarball = (
     { nix ? pkgs.nix
@@ -92,6 +124,7 @@ let
     , ext ? {
         "pacman" = "pkg.tar.zst";
       }.${type} or type
+    , selinux
     }: pkgs.runCommand "${pname}-${version}.${ext}"
       {
         nativeBuildInputs = [
@@ -113,6 +146,9 @@ let
 
       chmod +x rootfs/etc/profile.d/nix-env.sh
 
+      mkdir -p rootfs/usr/share/selinux/packages
+      cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
+
       # Create package
       ${pkgs.fakeroot}/bin/fakeroot fpm \
         -s dir \
@@ -133,20 +169,22 @@ lib.fix (self: {
 
   tarball = buildNixTarball { };
 
+  inherit selinux;
+
   deb = buildLegacyPkg {
     type = "deb";
-    inherit (self) tarball;
+    inherit (self) tarball selinux;
   };
 
   pacman = buildLegacyPkg {
     type = "pacman";
-    inherit (self) tarball;
+    inherit (self) tarball selinux;
   };
 
   # Note: Needs additional work (selinux)
   rpm = buildLegacyPkg {
     type = "rpm";
-    inherit (self) tarball;
+    inherit (self) tarball selinux;
   };
 
 })
