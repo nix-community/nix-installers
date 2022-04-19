@@ -41,6 +41,14 @@ if test -e /sys/fs/selinux; then
     systemctl daemon-reexec
 fi
 
+if ! test -e /root/.nix-defexpr; then
+    mkdir -p $out/root/.nix-defexpr
+    ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
+fi
+if ! [[ "@channelURL@" = "" || "@channelName@" = "" ]] && ! test -e /root/.nix-channels; then
+    echo "@channelURL@ @channelName@" > /root/.nix-channels
+fi
+
 # Enable autostart
 systemctl enable nix-daemon
 systemctl start nix-daemon

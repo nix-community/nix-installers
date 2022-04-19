@@ -8,7 +8,13 @@ let
 
   version = "0.1";
 
-  selinux =
+  channel' = pkgs.runCommand "channel-nixpkgs" { } ''
+    mkdir $out
+    ln -s ${pkgs.path} $out/nixpkgs
+    echo "[]" > $out/manifest.nix
+  '';
+
+  selinux' =
     let
       ignores = [
         "nix.mod"
@@ -41,6 +47,7 @@ let
     { nix ? pkgs.nix
     , cacert ? pkgs.cacert
     , drvs ? [ ]
+    , channel ? channel'
     }:
     let
 
@@ -85,7 +92,7 @@ let
         '';
 
       closure = pkgs.closureInfo {
-        rootPaths = profile;
+        rootPaths = [ profile ] ++ lib.optional (channel != null) channel;
       };
 
     in
@@ -118,14 +125,17 @@ let
     ''
   );
 
-  buildLegacyPkg = (
+  buildLegacyPkg = lib.makeOverridable (
     { type
-    , tarball
+    , tarball ? buildNixTarball { inherit channel; }
     , pname ? "nix-multi-user"
     , ext ? {
         "pacman" = "pkg.tar.zst";
       }.${type} or type
-    , selinux
+    , selinux ? selinux'
+    , channel ? channel'
+    , channelName ? "nixpkgs"
+    , channelURL ? "https://nixos.org/channels/nixpkgs-unstable"
     }: pkgs.runCommand "${pname}-${version}.${ext}"
       {
         nativeBuildInputs = [
@@ -135,6 +145,9 @@ let
         ++ lib.optional (type == "rpm") pkgs.rpm
         ++ lib.optionals (type == "pacman") [ pkgs.libarchive pkgs.zstd ]
         ;
+        passthru = {
+          inherit tarball selinux channel channelName channelURL;
+        };
       } ''
       export HOME=$(mktemp -d)
 
@@ -150,13 +163,19 @@ let
       mkdir -p rootfs/usr/share/selinux/packages
       cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
 
+      ${lib.optionalString (channel != null) ''
+        mkdir -p rootfs/nix/var/nix/profiles/per-user/root
+        ln -s ${channel} rootfs/nix/var/nix/profiles/per-user/root/channels-1-link
+        ln -s /nix/var/nix/profiles/per-user/root/channels-1-link rootfs/nix/var/nix/profiles/per-user/root/channels
+      ''}
+
       # Create package
       ${pkgs.fakeroot}/bin/fakeroot fpm \
         -s dir \
         -t ${type} \
         --name ${pname} \
         --version ${version} \
-        --after-install ${./hooks/after-install.sh} \
+        --after-install ${pkgs.substituteAll { src = ./hooks/after-install.sh; inherit channelName channelURL; }} \
         --after-remove ${./hooks/after-remove.sh} \
         -C rootfs \
         .
@@ -166,26 +185,12 @@ let
   );
 
 in
-lib.fix (self: {
+{
 
-  tarball = buildNixTarball { };
+  deb = buildLegacyPkg { type = "deb"; };
 
-  inherit selinux;
+  pacman = buildLegacyPkg { type = "pacman"; };
 
-  deb = buildLegacyPkg {
-    type = "deb";
-    inherit (self) tarball selinux;
-  };
+  rpm = buildLegacyPkg { type = "rpm"; };
 
-  pacman = buildLegacyPkg {
-    type = "pacman";
-    inherit (self) tarball selinux;
-  };
-
-  # Note: Needs additional work (selinux)
-  rpm = buildLegacyPkg {
-    type = "rpm";
-    inherit (self) tarball selinux;
-  };
-
-})
+}
