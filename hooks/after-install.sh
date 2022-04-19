@@ -41,7 +41,7 @@ if test -e /sys/fs/selinux; then
     systemctl daemon-reexec
 fi
 
-if ! test -e /root/.nix-defexpr; then
+if ! test -e /root/.nix-defexpr && test -e /nix/var/nix/profiles/per-user/root/channels; then
     mkdir -p $out/root/.nix-defexpr
     ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
 fi
