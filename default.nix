@@ -39,11 +39,12 @@ let
 
   buildNixTarball = (
     { nix ? pkgs.nix
+    , cacert ? pkgs.cacert
     , drvs ? [ ]
     }:
     let
 
-      contents = [ nix ] ++ drvs;
+      contents = [ nix cacert ] ++ drvs;
 
       # Packages used during build
       # These are not necessarily the same as the ones used in the output
