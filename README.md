@@ -16,3 +16,5 @@ This approach is different from others in that we:
 
 To achieve a reproducible setup for these distributions that doesn't rely on
 pulling files from the internet at install-time.
+
+These installer packages are intended to be used in a one-shot fashion to bootstrap the Nix installation, and then let Nix deal with managing itself from that point on.
