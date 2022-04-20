@@ -24,3 +24,22 @@ jobs:
     - uses: actions/checkout@v3.0.1
     - name: Run build
       run: nix-build --no-out-link .
+    - name: Create artifact
+      run: cp $(nix-build --no-out-link . -A deb) nix-multi-user.deb
+    - uses: actions/upload-artifact@v3
+      with:
+        name: nix-multi-user.deb
+        path: nix-multi-user.deb
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: nix-multi-user.deb
+        path: nix-multi-user.deb
+    - name: Install Nix
+      run: sudo dpkg -i nix-multi-user.deb/nix-multi-user.deb
+    - name: Run nix-shell
+      run: bash -l -c "nix-shell -p hello --run hello"
