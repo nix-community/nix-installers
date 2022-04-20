@@ -4,6 +4,7 @@ Getting Nix onto legacy distributions can be difficult and the official installe
 is not always a viable option, especially when considering reproducibility and automation.
 
 This approach is different from others in that we:
+
 - Package using distribution-native packaging formats (`deb`/`rpm`).
   And use these packages to manage systemd and environment integrations.
 
@@ -21,24 +22,26 @@ These installer packages are intended to be used in a one-shot fashion to bootst
 
 ## Usage
 
+### Prebuilt installers
+We provide prebuilt installers at https://nix-community.github.io/nix-installers/
+
+### Flakes
+``` bash
+# Remote flake
+$ nix build github:nix-community/nix-installers#pacman
+$ nix build github:nix-community/nix-installers#deb
+$ nix build github:nix-community/nix-installers#rpm
+
+# In a cloned repository
+$ nix build .#pacman
+$ nix build .#deb
+$ nix build .#rpm
+```
+
 ### Classic Nix
 ``` bash
 # In a cloned repository
 $ nix-build ./. -A pacman
 $ nix-build ./. -A deb
 $ nix-build ./. -A rpm
-```
-
-### Flakes
-
-``` bash
-# In a cloned repository
-$ nix build .#pacman
-$ nix build .#deb
-$ nix build .#rpm
-
-# Remote flake
-$ nix build github:nix-community/nix-installers#pacman
-$ nix build github:nix-community/nix-installers#deb
-$ nix build github:nix-community/nix-installers#rpm
 ```

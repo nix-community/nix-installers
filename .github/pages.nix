@@ -7,10 +7,15 @@
 , lib ? pkgs.lib
 }:
 
-let
+pkgs.runCommand "github-pages"
+{
   installers = import ../. { inherit pkgs lib; };
-
-in pkgs.runCommand "github-pages" { } ''
-  mkdir $out
-  echo "foo" > $out/index.html
-''
+  __structuredAttrs = true;
+  PATH = "${pkgs.coreutils}/bin:${pkgs.python3}/bin:${pkgs.pandoc}/bin";
+  builder = builtins.toFile "builder"
+    ''
+      . .attrs.sh
+      python3 ${./pages.py} ${../README.md} .attrs.json ''${outputs[out]}
+    '';
+  }
+  ""
