@@ -20,8 +20,25 @@ pulling files from the internet at install-time.
 These installer packages are intended to be used in a one-shot fashion to bootstrap the Nix installation, and then let Nix deal with managing itself from that point on.
 
 ## Usage
+
+### Classic Nix
 ``` bash
+# In a cloned repository
 $ nix-build ./. -A pacman
 $ nix-build ./. -A deb
 $ nix-build ./. -A rpm
+```
+
+### Flakes
+
+``` bash
+# In a cloned repository
+$ nix build .#pacman
+$ nix build .#deb
+$ nix build .#rpm
+
+# Remote flake
+$ nix build github:nix-community/nix-installers#pacman"
+$ nix build github:nix-community/nix-installers#deb"
+$ nix build github:nix-community/nix-installers#rpm"
 ```
