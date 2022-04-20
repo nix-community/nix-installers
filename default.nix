@@ -27,10 +27,12 @@ let
       inherit version;
       src = builtins.filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
 
-      nativeBuildInputs = [
-        pkgs.libselinux
-        pkgs.semodule-utils
-        pkgs.checkpolicy
+      nativeBuildInputs = let
+        inherit (pkgs.buildPackages) libselinux semodule-utils checkpolicy;
+      in [
+        libselinux
+        semodule-utils
+        checkpolicy
       ];
 
       dontConfigure = true;
@@ -57,7 +59,7 @@ let
       # These are not necessarily the same as the ones used in the output
       # for cases such as cross compilation
       buildPackages = {
-        inherit (pkgs) nix;
+        inherit (pkgs.buildPackages) nix;
       };
 
       profile =
@@ -138,13 +140,18 @@ let
     , channelURL ? "https://nixos.org/channels/nixpkgs-unstable"
     }: pkgs.runCommand "${pname}-${version}.${ext}"
       {
-        nativeBuildInputs = [
-          pkgs.fpm
+        nativeBuildInputs = let
+          inherit (pkgs.buildPackages) fakeroot fpm rpm libarchive zstd;
+          inherit (pkgs.buildPackages.buildPackages) binutils-unwrapped;
+        in [
+          fakeroot
+          fpm
         ]
-        ++ lib.optional (type == "deb") pkgs.binutils
-        ++ lib.optional (type == "rpm") pkgs.rpm
-        ++ lib.optionals (type == "pacman") [ pkgs.libarchive pkgs.zstd ]
+        ++ lib.optional (type == "deb") binutils-unwrapped
+        ++ lib.optional (type == "rpm") rpm
+        ++ lib.optionals (type == "pacman") [ libarchive zstd ]
         ;
+
         passthru = {
           inherit tarball selinux channel channelName channelURL;
         };
@@ -170,7 +177,8 @@ let
       ''}
 
       # Create package
-      ${pkgs.fakeroot}/bin/fakeroot fpm \
+      fakeroot fpm \
+        -a ${stdenv.targetPlatform.linuxArch} \
         -s dir \
         -t ${type} \
         --name ${pname} \
