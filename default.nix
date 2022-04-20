@@ -11,8 +11,6 @@ let
   inherit (pkgs) stdenv;
   inherit (builtins) elem baseNameOf;
 
-  version = "0.1";
-
   channel' = pkgs.runCommand "channel-nixpkgs" { } ''
     mkdir $out
     ln -s ${pkgs.path} $out/nixpkgs
@@ -28,8 +26,7 @@ let
       checkIgnore = f: ! elem (baseNameOf f) ignores;
     in
     stdenv.mkDerivation {
-      pname = "nix-selinux";
-      inherit version;
+      name = "nix-selinux";
       src = builtins.filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
 
       nativeBuildInputs =
@@ -136,7 +133,8 @@ let
 
   buildLegacyPkg = lib.makeOverridable (
     { type
-    , tarball ? buildNixTarball { inherit channel; }
+    , nix ? pkgs.nix
+    , tarball ? buildNixTarball { inherit channel nix; }
     , pname ? "nix-multi-user"
     , ext ? {
         "pacman" = "pkg.tar.zst";
@@ -145,7 +143,7 @@ let
     , channel ? channel'
     , channelName ? "nixpkgs"
     , channelURL ? "https://nixos.org/channels/nixpkgs-unstable"
-    }: pkgs.runCommand "${pname}-${version}.${ext}"
+    }: pkgs.runCommand "${pname}-${nix.version}.${ext}"
       {
         nativeBuildInputs =
           let
@@ -191,7 +189,7 @@ let
         -s dir \
         -t ${type} \
         --name ${pname} \
-        --version ${version} \
+        --version ${nix.version} \
         --after-install ${pkgs.substituteAll { src = ./hooks/after-install.sh; inherit channelName channelURL; }} \
         --after-remove ${./hooks/after-remove.sh} \
         -C rootfs \
