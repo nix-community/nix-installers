@@ -52,7 +52,7 @@ def main(input_path: str, installers: Dict[str, Dict[str, str]], output: str) ->
 
                 for arch, store_path in arches.items():
 
-                    f = str(os.path.basename(store_path.split("-", 1)[-1]))
+                    f = os.path.basename(store_path.split("-", 1)[-1])
 
                     output_dir = os.path.join(output, arch)
                     try:
