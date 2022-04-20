@@ -9,10 +9,10 @@ import hashlib
 
 
 def sha256_file(path):
-    h  = hashlib.sha256()
-    b  = bytearray(128*1024)
+    h = hashlib.sha256()
+    b = bytearray(128 * 1024)
     mv = memoryview(b)
-    with open(path, 'rb', buffering=0) as f:
+    with open(path, "rb", buffering=0) as f:
         while n := f.readinto(mv):
             h.update(mv[:n])
     return h.hexdigest()
@@ -24,7 +24,7 @@ def main(input_path, installers, output):
     with open(input_path) as f:
         lines = f.read().split("\n")
 
-    md = [ ]
+    md = []
     rewriting = False
     found = False
     for l in lines:
