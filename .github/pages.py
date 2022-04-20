@@ -42,11 +42,26 @@ def main(input_path, installers, output):
             rewriting = True
             found = True
 
-            for fmt, store_path in installers.items():
-                f = os.path.basename(store_path.split("-", 1)[-1])
-                shutil.copy(store_path, os.path.join(output, f))
-                sha = sha256_file(os.path.join(output, f))
-                md.append(f"- {fmt.capitalize()}:\n [{f}](./{f}) `({sha})`")
+            for fmt, arches in installers.items():
+
+                md.append(f"- {fmt.capitalize()}")
+
+                for arch, store_path in arches.items():
+
+                    f = os.path.basename(store_path.split("-", 1)[-1])
+
+                    output_dir = os.path.join(output, arch)
+                    try:
+                        os.mkdir(output_dir)
+                    except FileExistsError:
+                        pass
+
+                    output_file = os.path.join(output_dir, f)
+                    shutil.copy(store_path, output_file)
+
+                    sha = sha256_file(output_file)
+
+                    md.append(f"    - {arch}:\n [{f}](./{arch}/{f}) `({sha})`")
 
             md.append("")
 
