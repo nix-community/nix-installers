@@ -23,28 +23,28 @@ These installer packages are intended to be used in a one-shot fashion to bootst
 ## Usage
 
 ### Prebuilt installers
-We provide prebuilt installers at https://nix-community.github.io/nix-installers/
+We provide prebuilt installers at [https://nix-community.github.io/nix-installers/](https://nix-community.github.io/nix-installers/)
 
 ### Flakes
 ``` bash
 # Remote flake
-$ nix build github:nix-community/nix-installers#pacman
 $ nix build github:nix-community/nix-installers#deb
+$ nix build github:nix-community/nix-installers#pacman
 $ nix build github:nix-community/nix-installers#rpm
 
 # In a cloned repository
-$ nix build .#pacman
 $ nix build .#deb
+$ nix build .#pacman
 $ nix build .#rpm
 ```
 
 ### Classic Nix
 ``` bash
 # In a cloned repository
-$ nix-build ./. -A pacman
 $ nix-build ./. -A deb
+$ nix-build ./. -A pacman
 $ nix-build ./. -A rpm
 ```
 
 ## Contributing
-https://github.com/nix-community/nix-installers
+[https://github.com/nix-community/nix-installers](https://github.com/nix-community/nix-installers)
