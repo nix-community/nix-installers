@@ -8,7 +8,7 @@
 }:
 
 let
-  pythonEnv = pkgs.python3.withPackages (ps: [ ps.black ]);
+  pythonEnv = pkgs.python3.withPackages (ps: [ ps.black ps.mypy ]);
 in
 pkgs.mkShell {
   packages = [

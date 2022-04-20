@@ -6,9 +6,13 @@ import os.path
 import subprocess
 import shutil
 import hashlib
+from typing import (
+    Dict,
+    List,
+)
 
 
-def sha256_file(path):
+def sha256_file(path: str) -> str:
     h = hashlib.sha256()
     b = bytearray(128 * 1024)
     mv = memoryview(b)
@@ -18,13 +22,13 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-def main(input_path, installers, output):
+def main(input_path: str, installers: Dict[str, Dict[str, str]], output: str) -> None:
     os.mkdir(output)
 
-    with open(input_path) as f:
-        lines = f.read().split("\n")
+    with open(input_path) as readme_f:
+        lines: List[str] = readme_f.read().split("\n")
 
-    md = []
+    md: List[str] = []
     rewriting = False
     found = False
     for l in lines:
@@ -48,7 +52,7 @@ def main(input_path, installers, output):
 
                 for arch, store_path in arches.items():
 
-                    f = os.path.basename(store_path.split("-", 1)[-1])
+                    f = str(os.path.basename(store_path.split("-", 1)[-1]))
 
                     output_dir = os.path.join(output, arch)
                     try:
@@ -68,8 +72,8 @@ def main(input_path, installers, output):
     if not found:
         raise ValueError("Did not find expected segment in readme")
 
-    with open(os.path.join(output, "index.html"), "w") as f:
-        subprocess.run(["pandoc"], input="\n".join(md).encode(), stdout=f)
+    with open(os.path.join(output, "index.html"), "w") as index_f:
+        subprocess.run(["pandoc"], input="\n".join(md).encode(), stdout=index_f)
 
 
 if __name__ == "__main__":

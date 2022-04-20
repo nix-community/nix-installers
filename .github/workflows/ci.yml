@@ -25,6 +25,16 @@ jobs:
     - name: Check format
       run: nix-shell --run "black --check ."
 
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: cachix/install-nix-action@v17
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - uses: actions/checkout@v3.0.1
+    - name: Check format
+      run: nix-shell --run "git ls-files | grep -P '\.py$' | xargs mypy --strict"
+
   build:
     runs-on: ubuntu-latest
     steps:
