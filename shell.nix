@@ -7,6 +7,9 @@
 , lib ? pkgs.lib
 }:
 
+let
+  pythonEnv = pkgs.python3.withPackages (ps: [ ps.black ps.mypy ]);
+in
 pkgs.mkShell {
   packages = [
     pkgs.nixpkgs-fmt
@@ -14,5 +17,7 @@ pkgs.mkShell {
     pkgs.libselinux
     pkgs.semodule-utils
     pkgs.checkpolicy
+
+    pythonEnv
   ];
 }
