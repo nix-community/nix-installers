@@ -96,7 +96,7 @@ let
       };
 
     in
-    pkgs.runCommand "nix-root.tar.gz"
+    pkgs.runCommand "nix-root.tar.xz"
       {
         passthru = {
           inherit nix;
@@ -121,7 +121,7 @@ let
       done
 
       # Create a tarball with the Nix store for bootstraping
-      tar --owner=0 --group=0 -cpzf $out nix
+      XZ_OPT="-T$NIX_BUILD_CORES" tar --owner=0 --group=0 --lzma -c -p -f $out nix
     ''
   );
 
@@ -156,7 +156,7 @@ let
       find rootfs -type f | xargs chmod 644
       find rootfs -type d | xargs chmod 755
       mkdir -p rootfs/usr/share/nix
-      cp ${tarball} rootfs/usr/share/nix/nix.tar.gz
+      cp ${tarball} rootfs/usr/share/nix/nix.tar.xz
 
       chmod +x rootfs/etc/profile.d/nix-env.sh
 
