@@ -45,3 +45,6 @@ $ nix-build ./. -A pacman
 $ nix-build ./. -A deb
 $ nix-build ./. -A rpm
 ```
+
+## Contributing
+https://github.com/nix-community/nix-installers
