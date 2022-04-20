@@ -5,6 +5,17 @@ import os
 import os.path
 import subprocess
 import shutil
+import hashlib
+
+
+def sha256_file(path):
+    h  = hashlib.sha256()
+    b  = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(path, 'rb', buffering=0) as f:
+        while n := f.readinto(mv):
+            h.update(mv[:n])
+    return h.hexdigest()
 
 
 def main(input_path, installers, output):
@@ -34,7 +45,8 @@ def main(input_path, installers, output):
             for fmt, store_path in installers.items():
                 f = os.path.basename(store_path.split("-", 1)[-1])
                 shutil.copy(store_path, os.path.join(output, f))
-                md.append(f"- {fmt.capitalize()}: [{f}](./{f})")
+                sha = sha256_file(os.path.join(output, f))
+                md.append(f"- {fmt.capitalize()}:\n [{f}](./{f}) `({sha})`")
 
             md.append("")
 
