@@ -9,9 +9,11 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        inherit (pkgs) lib;
       in
       {
-        packages = import ./. { inherit pkgs; };
+        packages = import ./. { inherit pkgs lib; };
+        devShell = import ./shell.nix { inherit pkgs lib; };
       }
     )
   );
