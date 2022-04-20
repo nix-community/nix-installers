@@ -27,13 +27,15 @@ let
       inherit version;
       src = builtins.filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
 
-      nativeBuildInputs = let
-        inherit (pkgs.buildPackages) libselinux semodule-utils checkpolicy;
-      in [
-        libselinux
-        semodule-utils
-        checkpolicy
-      ];
+      nativeBuildInputs =
+        let
+          inherit (pkgs.buildPackages) libselinux semodule-utils checkpolicy;
+        in
+        [
+          libselinux
+          semodule-utils
+          checkpolicy
+        ];
 
       dontConfigure = true;
 
@@ -140,16 +142,18 @@ let
     , channelURL ? "https://nixos.org/channels/nixpkgs-unstable"
     }: pkgs.runCommand "${pname}-${version}.${ext}"
       {
-        nativeBuildInputs = let
-          inherit (pkgs.buildPackages) fakeroot fpm rpm libarchive zstd;
-          inherit (pkgs.buildPackages.buildPackages) binutils-unwrapped;
-        in [
-          fakeroot
-          fpm
-        ]
-        ++ lib.optional (type == "deb") binutils-unwrapped
-        ++ lib.optional (type == "rpm") rpm
-        ++ lib.optionals (type == "pacman") [ libarchive zstd ]
+        nativeBuildInputs =
+          let
+            inherit (pkgs.buildPackages) fakeroot fpm rpm libarchive zstd;
+            inherit (pkgs.buildPackages.buildPackages) binutils-unwrapped;
+          in
+          [
+            fakeroot
+            fpm
+          ]
+          ++ lib.optional (type == "deb") binutils-unwrapped
+          ++ lib.optional (type == "rpm") rpm
+          ++ lib.optionals (type == "pacman") [ libarchive zstd ]
         ;
 
         passthru = {
