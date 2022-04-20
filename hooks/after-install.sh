@@ -26,7 +26,7 @@ done
 
 # Create /nix/store if a fresh install, otherwise leave in place
 if ! test -e /nix/var/nix/db; then
-    tar -xzpf /usr/share/nix/nix.tar.xz
+    tar -xpf /usr/share/nix/nix.tar.xz
     rm -f /usr/share/nix/nix.tar.xz
 fi
 
