@@ -38,7 +38,7 @@ $ nix build .#deb
 $ nix build .#rpm
 
 # Remote flake
-$ nix build github:nix-community/nix-installers#pacman"
-$ nix build github:nix-community/nix-installers#deb"
-$ nix build github:nix-community/nix-installers#rpm"
+$ nix build github:nix-community/nix-installers#pacman
+$ nix build github:nix-community/nix-installers#deb
+$ nix build github:nix-community/nix-installers#rpm
 ```
