@@ -172,10 +172,11 @@ let
       cp -a ${./rootfs} rootfs
       find rootfs -type f | xargs chmod 644
       find rootfs -type d | xargs chmod 755
-      mkdir -p rootfs/usr/share/nix
+
       cp ${tarball} rootfs/usr/share/nix/nix.tar.xz
 
       chmod +x rootfs/etc/profile.d/nix-env.sh
+      chmod +x rootfs/usr/share/nix/nix-setup
 
       mkdir -p rootfs/usr/share/selinux/packages
       cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
@@ -211,6 +212,6 @@ in
 
   pacman = buildLegacyPkg { type = "pacman"; };
 
-  rpm = buildLegacyPkg { type = "rpm"; };
+  rpm = buildLegacyPkg { type = "rpm"; channel = null; };
 
 }
