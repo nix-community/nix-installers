@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 NIX_BUILD_GROUP_ID="30000"
 NIX_BUILD_GROUP_NAME="nixbld"
@@ -26,9 +27,13 @@ done
 
 # Create /nix/store if a fresh install, otherwise leave in place
 if ! test -e /nix/var/nix/db; then
-    tar -xpf /usr/share/nix/nix.tar.xz
+    mkdir -p /var/nix
+    tar -C /var/nix -xpf /usr/share/nix/nix.tar.xz
     rm -f /usr/share/nix/nix.tar.xz
 fi
+
+# Start the bind mount
+systemctl start nix.mount
 
 # Inspired by https://github.com/NixOS/nix/pull/2670
 if test -e /sys/fs/selinux; then
@@ -42,13 +47,13 @@ if test -e /sys/fs/selinux; then
     systemctl daemon-reexec
 fi
 
-if ! test -e /root/.nix-defexpr && test -e /nix/var/nix/profiles/per-user/root/channels; then
-    mkdir -p $out/root/.nix-defexpr
-    ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
-fi
-if ! [[ "@channelURL@" = "" || "@channelName@" = "" ]] && ! test -e /root/.nix-channels; then
-    echo "@channelURL@ @channelName@" > /root/.nix-channels
-fi
+# if ! test -e /root/.nix-defexpr && test -e /nix/var/nix/profiles/per-user/root/channels; then
+#     mkdir -p $out/root/.nix-defexpr
+#     ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
+# fi
+# if ! [[ "@channelURL@" = "" || "@channelName@" = "" ]] && ! test -e /root/.nix-channels; then
+#     echo "@channelURL@ @channelName@" > /root/.nix-channels
+# fi
 
 # Enable autostart
 systemctl enable nix-daemon

@@ -206,6 +206,6 @@ in
 
   pacman = buildLegacyPkg { type = "pacman"; };
 
-  rpm = buildLegacyPkg { type = "rpm"; };
+  rpm = buildLegacyPkg { type = "rpm"; channel = null; };
 
 }
