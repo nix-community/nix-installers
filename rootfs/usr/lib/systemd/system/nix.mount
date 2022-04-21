@@ -1,0 +1,12 @@
+[Unit]
+After=mkdir-rootfs@nix.service nix-setup.service
+Wants=mkdir-rootfs@nix.service nix-setup.service
+
+[Mount]
+What=/var/nix
+Where=/nix
+Options=bind
+Type=none
+
+[Install]
+WantedBy=local-fs.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Nix store setup
+Before=nix.mount
+
+[Service]
+ExecStart=/usr/share/nix/nix-setup
+Type=oneshot

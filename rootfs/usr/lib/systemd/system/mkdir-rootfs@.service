@@ -1,0 +1,10 @@
+[Unit]
+Description=Enable mount points in / for ostree
+DefaultDependencies=no
+ConditionPathExists=!%f
+
+[Service]
+Type=oneshot
+ExecStartPre=chattr -i /
+ExecStart=mkdir -p '%f'
+ExecStopPost=chattr +i /
