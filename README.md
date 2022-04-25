@@ -66,9 +66,6 @@ rpm-ostree install --reboot ./nix-multi-user.rpm
 As usual with these distros, [you need special handling for groups and users](https://docs.fedoraproject.org/en-US/fedora-silverblue/troubleshooting/#_unable_to_add_user_to_group) created by the package. These are needed for [nix multi-user mode](https://nixos.org/manual/nix/stable/installation/multi-user.html). After the previous reboot, do:
 
 ```sh
-# Verify all works
-nix --version
-
 # Create nixbld group and users
 grep -E '^nixbld:' /usr/lib/group | sudo tee -a /etc/group
 grep -E '^nixbld' /usr/lib/passwd | sudo tee -a /etc/passwd
@@ -76,6 +73,11 @@ sudo groupmod nixbld -aU $(grep -oE '^nixbld[[:digit:]]+' /usr/lib/passwd | tr '
 
 # Reboot again
 systemctl reboot
+
+# Verify all works
+nix --version
+nix-channel --update
+nix-shell -p hello --run hello
 ```
 
 After the next reboot, you should be able to use nix as usual.
