@@ -177,6 +177,8 @@ let
       mkdir -p rootfs/usr/share/selinux/packages
       cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
 
+      mkdir -p rootfs/nix/var/nix/daemon-socket
+
       ${lib.optionalString (channel != null) ''
         mkdir -p rootfs/nix/var/nix/profiles/per-user/root
         ln -s ${channel} rootfs/nix/var/nix/profiles/per-user/root/channels-1-link
