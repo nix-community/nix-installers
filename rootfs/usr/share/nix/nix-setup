@@ -5,8 +5,7 @@ if test -e /var/nix/store; then
     exit 0
 fi
 
-# Create the stoure
-mkdir -p /var
+# Create the store
 tar -C /var -xpf /usr/share/nix/nix.tar.xz
 rm -f /usr/share/nix/nix.tar.xz || true
 
@@ -22,6 +21,6 @@ fi
 if test -e /sys/fs/selinux; then
     semodule -i "/usr/share/selinux/packages/nix.pp"
 
-    # # Relabel the SELinux security context
-    # restorecon -FR /nix
+    # Relabel the SELinux security context
+    restorecon -FR /var/nix
 fi

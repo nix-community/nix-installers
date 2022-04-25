@@ -1,6 +1,9 @@
 [Unit]
-After=mkdir-rootfs@nix.service nix-setup.service
-Wants=mkdir-rootfs@nix.service nix-setup.service
+DefaultDependencies=no
+After=nix-mkdir.service
+Wants=nix-mkdir.service
+Before=nix-daemon.socket
+Before=systemd-tmpfiles-setup.service
 
 [Mount]
 What=/var/nix
@@ -9,4 +12,4 @@ Options=bind
 Type=none
 
 [Install]
-WantedBy=local-fs.target
+WantedBy=nix-daemon.socket

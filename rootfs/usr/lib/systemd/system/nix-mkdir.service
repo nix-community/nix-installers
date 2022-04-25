@@ -1,0 +1,12 @@
+[Unit]
+Description=Create /nix mount point for ostree
+DefaultDependencies=no
+ConditionPathExists=!/nix
+ConditionPathIsReadWrite=/
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStartPre=chattr -i /
+ExecStart=mkdir -p /nix/var/nix/daemon-socket /nix/var/nix/gcroots/per-user /nix/var/nix/profiles/per-user /nix
+ExecStopPost=chattr +i /

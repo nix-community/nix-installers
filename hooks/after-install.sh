@@ -6,8 +6,8 @@ set -e
 NIX_BUILD_GROUP_ID="30000"
 NIX_BUILD_GROUP_NAME="nixbld"
 
-# Setup group
-groupadd -g "$NIX_BUILD_GROUP_ID" --system "$NIX_BUILD_GROUP_NAME"
+# Setup group if it didn't exist
+grep -qE '^nixbld:' /etc/group || groupadd -g "$NIX_BUILD_GROUP_ID" --system "$NIX_BUILD_GROUP_NAME"
 
 # Add build users (same as number of cores on the machine to scale with `max-jobs = auto`)
 cores=$(nproc)

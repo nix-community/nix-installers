@@ -181,7 +181,8 @@ let
       mkdir -p rootfs/usr/share/selinux/packages
       cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
 
-      mkdir -p rootfs/nix/var/nix/daemon-socket
+      # For rpm nix-setup.service will create the directory
+      test "${type}" == rpm || mkdir -p rootfs/nix/var/nix/daemon-socket
 
       ${lib.optionalString (channel != null) ''
         mkdir -p rootfs/nix/var/nix/profiles/per-user/root

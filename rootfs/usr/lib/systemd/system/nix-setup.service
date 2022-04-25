@@ -1,6 +1,6 @@
 [Unit]
 Description=Nix store setup
-Before=nix.mount
+Before=nix-daemon.socket
 
 [Service]
 ExecStart=/usr/share/nix/nix-setup
