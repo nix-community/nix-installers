@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 NIX_BUILD_GROUP_ID="30000"
 NIX_BUILD_GROUP_NAME="nixbld"
 
@@ -52,7 +54,5 @@ fi
 
 # Enable autostart
 systemctl enable nix-daemon
-systemctl start nix-daemon
-
 # Make shell script exit with success regardless of systemd units failing to start immediately
-true
+systemctl start nix-daemon || true
