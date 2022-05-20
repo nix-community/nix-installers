@@ -10,7 +10,7 @@
 let
   systems = {
     "x86_64" = pkgs;
-    # "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
+    "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
   };
   formats = lib.attrNames (import ../. { inherit pkgs lib; });
 
