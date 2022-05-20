@@ -10,7 +10,7 @@
 let
   systems = {
     "x86_64" = pkgs;
-    "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
+    # "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
   };
   formats = lib.attrNames (import ../. { inherit pkgs lib; });
 
@@ -20,7 +20,12 @@ let
     (
       fmt: {
         name = fmt;
-        value = lib.mapAttrs (_: pkgs: (import ../. { inherit pkgs lib; }).${fmt}) systems;
+        value = lib.mapAttrs (_: pkgs: let
+          pkg = (import ../. { inherit pkgs lib; }).${fmt};
+        in {
+          store_path = pkg;
+          inherit (pkg) pname version;
+        }) systems;
       }
     )
     formats);

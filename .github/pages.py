@@ -22,7 +22,9 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
-def main(input_path: str, installers: Dict[str, Dict[str, str]], output: str) -> None:
+def main(
+    input_path: str, installers: Dict[str, Dict[str, Dict[str, str]]], output: str
+) -> None:
     os.mkdir(output)
 
     with open(input_path) as readme_f:
@@ -50,7 +52,8 @@ def main(input_path: str, installers: Dict[str, Dict[str, str]], output: str) ->
 
                 md.append(f"- {fmt.capitalize()}")
 
-                for arch, store_path in arches.items():
+                for arch, pkg in arches.items():
+                    store_path = pkg["store_path"]
 
                     f = os.path.basename(store_path.split("-", 1)[-1])
 
@@ -62,6 +65,11 @@ def main(input_path: str, installers: Dict[str, Dict[str, str]], output: str) ->
 
                     output_file = os.path.join(output_dir, f)
                     shutil.copy(store_path, output_file)
+
+                    os.symlink(
+                        f,
+                        os.path.join(output_dir, f.replace(pkg["version"], "latest")),
+                    )
 
                     sha = sha256_file(output_file)
 

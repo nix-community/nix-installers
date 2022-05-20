@@ -159,6 +159,9 @@ let
           ++ lib.optionals (type == "pacman") [ libarchive zstd ]
         ;
 
+        inherit pname;
+        inherit (nix) version;
+
         passthru = {
           inherit tarball selinux channel channelName channelURL;
         };
