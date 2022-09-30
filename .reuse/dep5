@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nix-installers
+Upstream-Contact: adisbladis <adisbladis@gmail.com>
+Source: https://github.com/nix-community/nix-installers
+
+Files: *
+Copyright: 2022 adisbladis <adisbladis@gmail.com>
+License: MIT

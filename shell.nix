@@ -18,6 +18,8 @@ pkgs.mkShell {
     pkgs.semodule-utils
     pkgs.checkpolicy
 
+    pkgs.reuse
+
     pythonEnv
   ];
 }
