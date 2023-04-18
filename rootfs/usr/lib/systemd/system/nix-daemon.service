@@ -9,6 +9,7 @@ Wants=nix-setup.service
 
 [Service]
 ExecStartPre=/usr/sbin/restorecon -F /nix
+ExecStartPre=/usr/sbin/restorecon -FR /nix/var/nix/profiles/system/bin
 ExecStart=@/nix/var/nix/profiles/system/bin/nix-daemon nix-daemon --daemon
 KillMode=process
 
