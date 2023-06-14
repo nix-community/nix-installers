@@ -49,7 +49,6 @@ def main(
             found = True
 
             for fmt, arches in installers.items():
-
                 md.append(f"- {fmt.capitalize()}")
 
                 for arch, pkg in arches.items():
