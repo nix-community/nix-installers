@@ -196,7 +196,6 @@ let
         --name ${pname} \
         --version ${nix.version} \
         --after-install ${pkgs.substituteAll { src = ./hooks/after-install.sh; inherit channelName channelURL; }} \
-        --after-remove ${./hooks/after-remove.sh} \
         -C rootfs \
         .
 
