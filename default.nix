@@ -115,8 +115,7 @@ let
       export USER=nobody
       ${buildPackages.nix}/bin/nix-store --load-db < ${closure}/registration
 
-      mkdir -p nix/var/nix/profiles nix/var/nix/gcroots/profiles
-      ln -s ${profile} nix/var/nix/gcroots/default
+      mkdir -p nix/var/nix/profiles nix/var/nix/gcroots
       ln -s ${profile} nix/var/nix/profiles/default
       ln -s ${profile} nix/var/nix/profiles/system
       chmod -R 755 nix/var/nix/profiles/per-user
