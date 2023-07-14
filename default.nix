@@ -119,7 +119,6 @@ let
       ln -s ${profile} nix/var/nix/gcroots/default
       ln -s ${profile} nix/var/nix/profiles/default
       ln -s ${profile} nix/var/nix/profiles/system
-      rm -r nix/var/nix/profiles/per-user/nixbld
       chmod -R 755 nix/var/nix/profiles/per-user
 
       for path in $(cat ${closure}/store-paths); do
