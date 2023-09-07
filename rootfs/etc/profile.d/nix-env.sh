@@ -1,6 +1,6 @@
 #!/bin/sh
 # Prevent being sourced from child shells.
-if [ -z "$__NIX_DAEMON_SET_ENVIRONMENT_DONE" ]; then
+if [ -z "$__NIX_SET_ENVIRONMENT_DONE" ]; then
 	# Avoid duplication of `PATH` entries.
 	while :; do case "${PATH-}:" in
 		${HOME:+"$HOME/.nix-profile/bin":*})
@@ -41,10 +41,10 @@ if [ -z "$__NIX_DAEMON_SET_ENVIRONMENT_DONE" ]; then
 	esac; done
 	# Ensure environment variables are exported.
 	if [ "$-" != "${-%%a*}" ]; then
-		. /usr/lib/environment.d/nix-daemon.conf
+		. /usr/lib/environment.d/nix.conf
 	else
 		set -a
-		. /usr/lib/environment.d/nix-daemon.conf
+		. /usr/lib/environment.d/nix.conf
 		set +a
 	fi
 fi
