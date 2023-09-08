@@ -55,11 +55,13 @@ let
     { nix ? pkgs.nix
     , cacert ? pkgs.cacert
     , drvs ? [ ]
+    , systemDrvs ? [ ]
     , channel ? channel'
     }:
     let
 
-      systemProfileContents = [ nix cacert ] ++ drvs;
+      defaultProfileContents = [ cacert ] ++ drvs;
+      systemProfileContents = [ nix ] ++ systemDrvs;
 
       # Packages used during build
       # These are not necessarily the same as the ones used in the output
@@ -101,13 +103,17 @@ let
           EOF
         '';
 
+      defaultProfile = mkProfile {
+        contents = defaultProfileContents;
+        name = "default";
+      };
       systemProfile = mkProfile {
         contents = systemProfileContents;
         name = "system";
       };
 
       closure = pkgs.closureInfo {
-        rootPaths = [ systemProfile ] ++ optional (channel != null) channel;
+        rootPaths = [ systemProfile defaultProfile ] ++ optional (channel != null) channel;
       };
 
     in
@@ -124,6 +130,7 @@ let
       export USER=nobody
       "${buildPackages.nix}"/bin/nix-store --load-db < "${closure}"/registration
 
+      ln -s "${defaultProfile}" nix/var/nix/profiles/default
       ln -s "${systemProfile}" nix/var/nix/profiles/system
       chmod -R 755 nix/var/nix/profiles/per-user
 
