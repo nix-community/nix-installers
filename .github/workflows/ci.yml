@@ -46,7 +46,7 @@ jobs:
       run: nix-build --no-out-link .
     - name: Create artifact
       run: cp $(nix-build --no-out-link . -A deb) nix-multi-user.deb
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: nix-multi-user.deb
         path: nix-multi-user.deb
