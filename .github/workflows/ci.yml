@@ -11,7 +11,7 @@ jobs:
     - uses: cachix/install-nix-action@v26
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4.1.5
     - name: Check format
       run: nix-shell --run "nixpkgs-fmt --check ."
 
@@ -21,7 +21,7 @@ jobs:
     - uses: cachix/install-nix-action@v26
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4.1.5
     - name: Check format
       run: nix-shell --run "black --check ."
 
@@ -31,7 +31,7 @@ jobs:
     - uses: cachix/install-nix-action@v26
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4.1.5
     - name: Check format
       run: nix-shell --run "git ls-files | grep -P '\.py$' | xargs mypy --strict"
 
@@ -41,7 +41,7 @@ jobs:
     - uses: cachix/install-nix-action@v26
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4.1.5
     - name: Run build
       run: nix-build --no-out-link .
     - name: Create artifact
