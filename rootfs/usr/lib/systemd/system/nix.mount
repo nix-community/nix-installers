@@ -1,0 +1,15 @@
+[Unit]
+DefaultDependencies=no
+After=nix-mkdir.service
+Wants=nix-mkdir.service
+Before=nix-daemon.socket
+Before=systemd-tmpfiles-setup.service
+
+[Mount]
+What=/var/nix
+Where=/nix
+Options=bind
+Type=none
+
+[Install]
+WantedBy=nix-daemon.socket

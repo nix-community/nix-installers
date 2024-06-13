@@ -8,13 +8,15 @@
 }:
 
 let
-  inherit (pkgs) stdenv;
-  inherit (builtins) elem baseNameOf;
+  inherit (builtins) baseNameOf elem filterSource map;
+  inherit (lib.customisation) makeOverridable;
+  inherit (lib.lists) optional optionals;
+  inherit (lib.strings) concatStringsSep escapeNixString escapeNixIdentifier escapeShellArg optionalString;
 
   channel' = pkgs.runCommand "channel-nixpkgs" { } ''
-    mkdir $out
-    ln -s ${pkgs.path} $out/nixpkgs
-    echo "[]" > $out/manifest.nix
+    mkdir "$out"
+    ln -s ${escapeShellArg pkgs.path} "$out"/nixpkgs
+    echo "[]" > "$out"/manifest.nix
   '';
 
   selinux' =
@@ -25,9 +27,9 @@ let
       ];
       checkIgnore = f: ! elem (baseNameOf f) ignores;
     in
-    stdenv.mkDerivation {
+    pkgs.stdenv.mkDerivation {
       name = "nix-selinux";
-      src = builtins.filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
+      src = filterSource (f: t: t == "regular" && checkIgnore f) ./selinux;
 
       nativeBuildInputs =
         let
@@ -43,8 +45,8 @@ let
 
       installPhase = ''
         runHook preInstall
-        mkdir $out
-        cp nix.pp $out/
+        mkdir "$out"
+        cp nix.pp "$out"/
         runHook postInstall
       '';
     };
@@ -53,11 +55,13 @@ let
     { nix ? pkgs.nix
     , cacert ? pkgs.cacert
     , drvs ? [ ]
+    , systemDrvs ? [ ]
     , channel ? channel'
     }:
     let
 
-      contents = [ nix cacert ] ++ drvs;
+      defaultProfileContents = [ cacert ] ++ drvs;
+      systemProfileContents = [ nix ] ++ systemDrvs;
 
       # Packages used during build
       # These are not necessarily the same as the ones used in the output
@@ -66,29 +70,31 @@ let
         inherit (pkgs.buildPackages) nix;
       };
 
-      profile =
+      mkProfile = { contents, name }:
         let
-          rootEnv = pkgs.buildEnv {
-            name = "root-profile-env";
+          env = pkgs.buildEnv {
+            name = "${name}-profile-env";
             paths = contents;
           };
         in
-        pkgs.runCommand "user-environment" { } ''
-          mkdir $out
-          cp -a ${rootEnv}/* $out/
-          cat > $out/manifest.nix <<EOF
+        pkgs.runCommand "${name}-profile-environment" { } ''
+          mkdir "$out"
+          for file in ${escapeShellArg env}/*; do
+            cp -a "$file" "$out"/
+          done
+          cat > "$out"/manifest.nix <<EOF
           [
-          ${lib.concatStringsSep "\n" (builtins.map (drv: let
+          ${concatStringsSep "\n" (map (drv: let
             outputs = drv.outputsToInstall or [ "out" ];
           in ''
             {
-              ${lib.concatStringsSep "\n" (builtins.map (output: ''
-                ${output} = { outPath = "${lib.getOutput output drv}"; };
+              ${concatStringsSep "\n" (map (output: ''
+                ${escapeNixIdentifier output}.outPath = ${escapeNixString (lib.getOutput output drv)};
               '') outputs)}
-              outputs = [ ${lib.concatStringsSep " " (builtins.map (x: "\"${x}\"") outputs)} ];
-              name = "${drv.name}";
-              outPath = "${drv}";
-              system = "${drv.system}";
+              outputs = [ ${concatStringsSep " " (map escapeNixString outputs)} ];
+              name = ${escapeNixString drv.name};
+              outPath = ${escapeNixString drv};
+              system = ${escapeNixString drv.system};
               type = "derivation";
               meta = { };
             }
@@ -97,8 +103,17 @@ let
           EOF
         '';
 
+      defaultProfile = mkProfile {
+        contents = defaultProfileContents;
+        name = "default";
+      };
+      systemProfile = mkProfile {
+        contents = systemProfileContents;
+        name = "system";
+      };
+
       closure = pkgs.closureInfo {
-        rootPaths = [ profile ] ++ lib.optional (channel != null) channel;
+        rootPaths = [ systemProfile defaultProfile ] ++ optional (channel != null) channel;
       };
 
     in
@@ -108,32 +123,30 @@ let
           inherit nix;
         };
       } ''
-      export NIX_REMOTE=local?root=$PWD
+      export NIX_REMOTE=local?root="$PWD"
 
       # A user is required by nix
       # https://github.com/NixOS/nix/blob/9348f9291e5d9e4ba3c4347ea1b235640f54fd79/src/libutil/util.cc#L478
       export USER=nobody
-      ${buildPackages.nix}/bin/nix-store --load-db < ${closure}/registration
+      ${escapeShellArg buildPackages.nix}/bin/nix-store --load-db < ${escapeShellArg closure}/registration
 
-      mkdir -p nix/var/nix/profiles nix/var/nix/gcroots/profiles
-      ln -s ${profile} nix/var/nix/gcroots/default
-      ln -s ${profile} nix/var/nix/profiles/default
-      ln -s ${profile} nix/var/nix/profiles/system
+      ln -s ${escapeShellArg defaultProfile} nix/var/nix/profiles/default
+      ln -s ${escapeShellArg systemProfile} nix/var/nix/profiles/system
       chmod -R 755 nix/var/nix/profiles/per-user
 
-      for path in $(cat ${closure}/store-paths); do
-        cp -va $path nix/store/
-      done
+      while IFS= read -r path; do
+        cp -va "$path" nix/store/
+      done < ${escapeShellArg closure}/store-paths
 
       # Create a tarball with the Nix store for bootstraping
-      XZ_OPT="-T$NIX_BUILD_CORES" tar --owner=0 --group=0 --lzma -c -p -f $out nix
+      XZ_OPT="-T$NIX_BUILD_CORES" tar --owner=0 --group=0 --lzma -c -p -f "$out" nix
     ''
   );
 
-  buildLegacyPkg = lib.makeOverridable (
+  buildLegacyPkg = makeOverridable (
     { type
     , nix ? pkgs.nix
-    , tarball ? buildNixTarball { inherit channel nix; }
+    , nixTarball ? buildNixTarball { inherit channel nix; }
     , pname ? "nix-multi-user"
     , ext ? {
         "pacman" = "pkg.tar.zst";
@@ -153,52 +166,77 @@ let
             fakeroot
             fpm
           ]
-          ++ lib.optional (type == "deb") binutils-unwrapped
-          ++ lib.optional (type == "rpm") rpm
-          ++ lib.optionals (type == "pacman") [ libarchive zstd ]
+          ++ optional (type == "deb") binutils-unwrapped
+          ++ optional (type == "rpm") rpm
+          ++ optionals (type == "pacman") [ libarchive zstd ]
         ;
 
         inherit pname;
         inherit (nix) version;
+        __structuredAttrs = true;
+
+        env = {
+          inherit channelName channelURL nixTarball selinux;
+          channel = optionalString (channel != null) channel;
+          packageAfterInstall = pkgs.substituteAll {
+            src = ./hooks/after-install.sh;
+            inherit channelName channelURL;
+          };
+          packageArch = pkgs.stdenv.targetPlatform.linuxArch;
+          packageExt = ext;
+          packageType = type;
+          rootfs = "${./rootfs}";
+        };
 
         passthru = {
-          inherit tarball selinux channel channelName channelURL;
+          rootfs = ./rootfs;
         };
       } ''
-      export HOME=$(mktemp -d)
+      export HOME="$(mktemp -d)"
 
       # Setup root fs
-      cp -a ${./rootfs} rootfs
-      find rootfs -type f | xargs chmod 644
-      find rootfs -type d | xargs chmod 755
+      cp -a "$rootfs" rootfs
+      find rootfs -type f -exec chmod 644 '{}' '+'
+      find rootfs -type d -exec chmod 755 '{}' '+'
+
       mkdir -p rootfs/usr/share/nix
-      cp ${tarball} rootfs/usr/share/nix/nix.tar.xz
+      cp "$nixTarball" rootfs/usr/share/nix/nix.tar.xz
+
+      substituteAllInPlace rootfs/usr/share/nix/nix-setup
 
       chmod +x rootfs/etc/profile.d/nix-env.sh
+      chmod +x rootfs/usr/share/nix/nix-setup
 
       mkdir -p rootfs/usr/share/selinux/packages
-      cp ${selinux}/nix.pp rootfs/usr/share/selinux/packages/
+      cp "$selinux"/nix.pp rootfs/usr/share/selinux/packages/
 
-      mkdir -p rootfs/nix/var/nix/daemon-socket
+      case "$packageType" in
+        "rpm")
+          # nix-setup.service will create the directory
+          ;;
+        *)
+          mkdir -p rootfs/nix/var/nix/daemon-socket
+          ;;
+      esac
 
-      ${lib.optionalString (channel != null) ''
+      case "$channel" in ''') ;; *)
         mkdir -p rootfs/nix/var/nix/profiles/per-user/root
-        ln -s ${channel} rootfs/nix/var/nix/profiles/per-user/root/channels-1-link
+        ln -s "$channel" rootfs/nix/var/nix/profiles/per-user/root/channels-1-link
         ln -s /nix/var/nix/profiles/per-user/root/channels-1-link rootfs/nix/var/nix/profiles/per-user/root/channels
-      ''}
+      esac
 
       # Create package
       fakeroot fpm \
-        -a ${stdenv.targetPlatform.linuxArch} \
+        -a "$packageArch" \
         -s dir \
-        -t ${type} \
-        --name ${pname} \
-        --version ${nix.version} \
-        --after-install ${pkgs.substituteAll { src = ./hooks/after-install.sh; inherit channelName channelURL; }} \
+        -t "$packageType" \
+        --name "$pname" \
+        --version "$version" \
+        --after-install "$packageAfterInstall" \
         -C rootfs \
         .
 
-      mv *.${ext} $out
+      mv *."$packageExt" "$out"
     ''
   );
 
@@ -209,6 +247,6 @@ in
 
   pacman = buildLegacyPkg { type = "pacman"; };
 
-  rpm = buildLegacyPkg { type = "rpm"; };
+  rpm = buildLegacyPkg { type = "rpm"; channel = null; };
 
 }

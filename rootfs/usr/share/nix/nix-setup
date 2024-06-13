@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if test -e /var/nix/store; then
+    exit 0
+fi
+
+# Create the store
+tar -C /var -xpf /usr/share/nix/nix.tar.xz
+rm -f /usr/share/nix/nix.tar.xz || true
+
+# Set up root channels ()
+if ! test -e /root/.nix-defexpr && test -e /nix/var/nix/profiles/per-user/root/channels; then
+    mkdir -p $out/root/.nix-defexpr
+    ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
+fi
+if ! [[ "@channelURL@" = "" || "@channelName@" = "" ]] && ! test -e /root/.nix-channels; then
+    echo "@channelURL@ @channelName@" > /root/.nix-channels
+fi
+
+if test -e /sys/fs/selinux; then
+    semodule -i "/usr/share/selinux/packages/nix.pp"
+
+    # Relabel the SELinux security context
+    restorecon -FR /var/nix
+fi
