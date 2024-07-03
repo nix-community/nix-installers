@@ -63,7 +63,7 @@ let
       # These are not necessarily the same as the ones used in the output
       # for cases such as cross compilation
       buildPackages = {
-        inherit (pkgs.buildPackages) nix;
+        inherit (pkgs.buildPackages) nix sqlite;
       };
 
       profile =
@@ -121,12 +121,15 @@ let
       ln -s ${profile} nix/var/nix/profiles/system
       chmod -R 755 nix/var/nix/profiles/per-user
 
+      # Reset registration times to make the output reproducible
+      ${buildPackages.sqlite}/bin/sqlite3 nix/var/nix/db/db.sqlite "UPDATE ValidPaths SET registrationTime = ''${SOURCE_DATE_EPOCH}"
+
       for path in $(cat ${closure}/store-paths); do
         cp -va $path nix/store/
       done
 
       # Create a tarball with the Nix store for bootstraping
-      XZ_OPT="-T$NIX_BUILD_CORES" tar --owner=0 --group=0 --lzma -c -p -f $out nix
+      XZ_OPT="-T1" tar --owner=0 --group=0 --hard-dereference --sort=name --mtime="@''${SOURCE_DATE_EPOCH}" --lzma -c -p -f $out nix
     ''
   );
 
