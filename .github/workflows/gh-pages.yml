@@ -13,7 +13,7 @@ jobs:
     - uses: cachix/install-nix-action@v30
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.2.1
+    - uses: actions/checkout@v4.2.2
     - name: Run build
       run: nix-build .github/pages.nix
     - name: Deploy
