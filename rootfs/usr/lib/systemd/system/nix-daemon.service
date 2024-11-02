@@ -4,8 +4,12 @@ RequiresMountsFor=/nix/store
 RequiresMountsFor=/nix/var
 RequiresMountsFor=/nix/var/nix/db
 ConditionPathIsReadWrite=/nix/var/nix/daemon-socket
+After=nix-setup.service
+Wants=nix-setup.service
 
 [Service]
+ExecStartPre=/usr/sbin/restorecon -F /nix
+ExecStartPre=/usr/sbin/restorecon -FR /nix/var/nix/profiles/system/bin
 ExecStart=@/nix/var/nix/profiles/system/bin/nix-daemon nix-daemon --daemon
 KillMode=process
 

@@ -205,12 +205,22 @@ let
       mkdir -p rootfs/usr/share/nix
       cp "$nixTarball" rootfs/usr/share/nix/nix.tar.xz
 
+      substituteAllInPlace rootfs/usr/share/nix/nix-setup
+
       chmod +x rootfs/etc/profile.d/nix-env.sh
+      chmod +x rootfs/usr/share/nix/nix-setup
 
       mkdir -p rootfs/usr/share/selinux/packages
       cp "$selinux"/nix.pp rootfs/usr/share/selinux/packages/
 
-      mkdir -p rootfs/nix/var/nix/daemon-socket
+      case "$packageType" in
+        "rpm")
+          # nix-setup.service will create the directory
+          ;;
+        *)
+          mkdir -p rootfs/nix/var/nix/daemon-socket
+          ;;
+      esac
 
       case "$channel" in ''') ;; *)
         mkdir -p rootfs/nix/var/nix/profiles/per-user/root
@@ -240,6 +250,6 @@ in
 
   pacman = buildLegacyPkg { type = "pacman"; };
 
-  rpm = buildLegacyPkg { type = "rpm"; };
+  rpm = buildLegacyPkg { type = "rpm"; channel = null; };
 
 }
