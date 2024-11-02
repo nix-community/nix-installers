@@ -26,7 +26,7 @@
       {
         packages = forSystems (
           system:
-          import ./. {
+          import self {
             pkgs = nixpkgs.legacyPackages.${system};
             inherit lib;
           }
@@ -61,9 +61,11 @@
 
         devShells = forSystems (
           system:
-          import ./. {
+          let
             pkgs = nixpkgs.legacyPackages.${system};
-            inherit lib;
+          in
+          {
+            default = pkgs.callPackage ./shell.nix { };
           }
         );
       }
