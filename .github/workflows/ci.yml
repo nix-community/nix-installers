@@ -15,7 +15,7 @@ jobs:
     - name: Run checks
       run: nix flake check -L
 
-  build:
+  build-nix:
     runs-on: ubuntu-latest
     steps:
     - uses: cachix/install-nix-action@v30
@@ -25,15 +25,32 @@ jobs:
     - name: Run build
       run: nix-build --no-out-link .
     - name: Create artifact
-      run: cp $(nix-build --no-out-link . -A deb) nix-multi-user.deb
+      run: cp $(nix-build --no-out-link . -A nix.deb) nix-multi-user.deb
     - uses: actions/upload-artifact@v4
       with:
         name: nix-multi-user.deb
         path: nix-multi-user.deb
         retention-days: 1
 
-  test:
-    needs: build
+  build-lix:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: cachix/install-nix-action@v30
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - uses: actions/checkout@v4.2.2
+    - name: Run build
+      run: nix-build --no-out-link .
+    - name: Create artifact
+      run: cp $(nix-build --no-out-link . -A lix.deb) lix-multi-user.deb
+    - uses: actions/upload-artifact@v4
+      with:
+        name: lix-multi-user.deb
+        path: lix-multi-user.deb
+        retention-days: 1
+
+  test-nix:
+    needs: build-nix
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v4
@@ -45,11 +62,26 @@ jobs:
     - name: Run nix-shell
       run: bash -l -c "nix-shell -p hello --run hello"
 
+  test-lix:
+    needs: build-lix
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: lix-multi-user.deb
+        path: lix-multi-user.deb
+    - name: Install Lix
+      run: sudo dpkg -i lix-multi-user.deb/lix-multi-user.deb
+    - name: Run nix-shell
+      run: bash -l -c "nix-shell -p hello --run hello"
+
   collect:
     runs-on: ubuntu-latest
     needs:
       - checks
-      - build
-      - test
+      - build-nix
+      - build-lix
+      - test-nix
+      - test-lix
     steps:
       - run: true

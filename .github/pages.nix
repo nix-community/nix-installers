@@ -9,28 +9,41 @@
 }:
 
 let
+  inherit (lib) genAttrs attrNames;
+
+  impls = [
+    "lix"
+    "nix"
+  ];
+
+  formats = [
+    "deb"
+    "pacman"
+    "rpm"
+  ];
+
   systems = {
     "x86_64" = pkgs;
     "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
   };
-  formats = lib.attrNames (import ../. { inherit pkgs lib; });
 
-  # Map (format -> arch -> drv)
-  # Example: deb -> aarch64 -> <<derivation: foo>>
-  installers = lib.listToAttrs (
-    map (fmt: {
-      name = fmt;
-      value = lib.mapAttrs (
-        _: pkgs:
+  installers = genAttrs impls (
+    impl:
+    genAttrs formats (
+      format:
+      genAttrs (attrNames systems) (
+        system:
         let
-          pkg = (import ../. { inherit pkgs lib; }).${fmt};
+          pkgs = systems.${system};
+          installers' = import ../. { inherit pkgs lib; };
+          pkg = installers'.${impl}.${format};
         in
         {
-          store_path = pkg;
-          inherit (pkg) pname version;
+          store_path = "${pkg}";
+          inherit (pkg) version;
         }
-      ) systems;
-    }) formats
+      )
+    )
   );
 
 in
