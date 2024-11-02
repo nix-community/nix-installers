@@ -26,10 +26,17 @@
       {
         packages = forSystems (
           system:
-          import self {
-            pkgs = nixpkgs.legacyPackages.${system};
-            inherit lib;
-          }
+          let
+            packages' = import self {
+              pkgs = nixpkgs.legacyPackages.${system};
+              inherit lib;
+            };
+          in
+          lib.listToAttrs (
+            lib.concatMap (
+              impl: lib.mapAttrsToList (format: v: lib.nameValuePair "${impl}-${format}" v) packages'.${impl}
+            ) (lib.attrNames packages')
+          )
         );
 
         checks = forSystems (

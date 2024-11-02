@@ -275,10 +275,36 @@ let
 in
 {
 
-  deb = buildLegacyPkg { type = "deb"; };
+  nix =
+    let
+      pkg = pkgs.nix;
+    in
+    {
+      deb = buildLegacyPkg {
+        type = "deb";
+        nix = pkg;
+      };
+      pacman = buildLegacyPkg {
+        type = "pacman";
+        nix = pkg;
+      };
+      rpm = buildLegacyPkg {
+        type = "rpm";
+        nix = pkg;
+      };
+    };
 
-  pacman = buildLegacyPkg { type = "pacman"; };
-
-  rpm = buildLegacyPkg { type = "rpm"; };
+  lix =
+    let
+      args = {
+        nix = pkgs.lixVersions.latest;
+        pname = "lix-multi-user";
+      };
+    in
+    {
+      deb = buildLegacyPkg ({ type = "deb"; } // args);
+      pacman = buildLegacyPkg ({ type = "pacman"; } // args);
+      rpm = buildLegacyPkg ({ type = "rpm"; } // args);
+    };
 
 }

@@ -10,9 +10,10 @@ from typing import (
     Dict,
     List,
 )
+from pathlib import Path
 
 
-def sha256_file(path: str) -> str:
+def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
     b = bytearray(128 * 1024)
     mv = memoryview(b)
@@ -48,31 +49,33 @@ def main(
             rewriting = True
             found = True
 
-            for fmt, arches in installers.items():
-                md.append(f"- {fmt.capitalize()}")
+            for impl, impls in installers.items():
+                md.append(f"#### {impl.capitalize()}\n")
 
-                for arch, pkg in arches.items():
-                    store_path = pkg["store_path"]
+                for fmt, arches in impls.items():
+                    md.append(f"- {fmt.capitalize()}\n")
 
-                    f = os.path.basename(store_path.split("-", 1)[-1])
+                    for arch, pkg in arches.items():
+                        store_path = pkg["store_path"]
 
-                    output_dir = os.path.join(output, arch)
-                    try:
-                        os.mkdir(output_dir)
-                    except FileExistsError:
-                        pass
+                        f = os.path.basename(store_path.split("-", 1)[-1])
 
-                    output_file = os.path.join(output_dir, f)
-                    shutil.copy(store_path, output_file)
+                        output_dir = Path(output).joinpath(impl).joinpath(arch)
+                        output_dir.mkdir(parents=True, exist_ok=True)
 
-                    os.symlink(
-                        f,
-                        os.path.join(output_dir, f.replace(pkg["version"], "latest")),
-                    )
+                        output_file = output_dir.joinpath(f)
+                        shutil.copy(store_path, output_file)
 
-                    sha = sha256_file(output_file)
+                        os.symlink(
+                            f,
+                            os.path.join(
+                                output_dir, f.replace(pkg["version"], "latest")
+                            ),
+                        )
 
-                    md.append(f"    - {arch}:\n [{f}](./{arch}/{f}) `({sha})`")
+                        sha = sha256_file(output_file)
+
+                        md.append(f"    - {arch}:\n [{f}](./{arch}/{f}) `({sha})`\n")
 
             md.append("")
 
