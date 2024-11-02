@@ -33,16 +33,16 @@ def main(
     md: List[str] = []
     rewriting = False
     found = False
-    for l in lines:
-        if rewriting and l.startswith("###"):
+    for line in lines:
+        if rewriting and line.startswith("###"):
             rewriting = False
 
         if rewriting:
             continue
 
-        md.append(l)
+        md.append(line)
 
-        if l == "### Prebuilt installers":
+        if line == "### Prebuilt installers":
             if found:
                 raise ValueError("Found duplicate segment in readme")
             rewriting = True

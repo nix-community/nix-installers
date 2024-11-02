@@ -4,28 +4,28 @@ set -e
 
 # Create /nix/store if a fresh install, otherwise leave in place
 if ! test -e /nix/var/nix/db; then
-    tar -xpf /usr/share/nix/nix.tar.xz
-    rm -f /usr/share/nix/nix.tar.xz
+  tar -xpf /usr/share/nix/nix.tar.xz
+  rm -f /usr/share/nix/nix.tar.xz
 fi
 
 # Inspired by https://github.com/NixOS/nix/pull/2670
 if test -e /sys/fs/selinux; then
-    # Install the Nix SELinux policy
-    semodule -i "/usr/share/selinux/packages/nix.pp"
+  # Install the Nix SELinux policy
+  semodule -i "/usr/share/selinux/packages/nix.pp"
 
-    # Relabel the SELinux security context
-    restorecon -FR /nix
+  # Relabel the SELinux security context
+  restorecon -FR /nix
 
-    # Reexec systemd (is this really required?)
-    systemctl daemon-reexec
+  # Reexec systemd (is this really required?)
+  systemctl daemon-reexec
 fi
 
 if ! test -e /root/.nix-defexpr && test -e /nix/var/nix/profiles/per-user/root/channels; then
-    mkdir -p $out/root/.nix-defexpr
-    ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
+  mkdir -p $out/root/.nix-defexpr
+  ln -s /nix/var/nix/profiles/per-user/root/channels /root/.nix-defexpr/channels
 fi
-if ! [[ "@channelURL@" = "" || "@channelName@" = "" ]] && ! test -e /root/.nix-channels; then
-    echo "@channelURL@ @channelName@" > /root/.nix-channels
+if ! [[ "@channelURL@" == "" || "@channelName@" == "" ]] && ! test -e /root/.nix-channels; then
+  echo "@channelURL@ @channelName@" >/root/.nix-channels
 fi
 
 # Enable autostart

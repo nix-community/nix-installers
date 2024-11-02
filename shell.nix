@@ -1,14 +1,15 @@
-{ pkgs ? (
+{
+  pkgs ? (
     let
       flakeLock = builtins.fromJSON (builtins.readFile ./flake.lock);
     in
     import "${builtins.fetchTree flakeLock.nodes.nixpkgs.locked}" { }
-  )
-, lib ? pkgs.lib
+  ),
 }:
 
 let
-  pythonEnv = pkgs.python3.withPackages (ps: [ ps.black ps.mypy ]);
+  pythonEnv = pkgs.python3.withPackages (_ps: [ ]);
+
 in
 pkgs.mkShell {
   packages = [

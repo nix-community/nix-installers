@@ -6,19 +6,3 @@ on:
       - master
 
 jobs:
-
-  pages:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: cachix/install-nix-action@v30
-      with:
-        nix_path: nixpkgs=channel:nixos-unstable
-    - uses: actions/checkout@v4.2.2
-    - name: Run build
-      run: nix-build .github/pages.nix
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./result
-        force_orphan: true

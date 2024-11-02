@@ -1,10 +1,11 @@
-{ pkgs ? (
+{
+  pkgs ? (
     let
       flakeLock = builtins.fromJSON (builtins.readFile ../flake.lock);
     in
     import "${builtins.fetchTree flakeLock.nodes.nixpkgs.locked}" { }
-  )
-, lib ? pkgs.lib
+  ),
+  lib ? pkgs.lib,
 }:
 
 let
@@ -16,30 +17,29 @@ let
 
   # Map (format -> arch -> drv)
   # Example: deb -> aarch64 -> <<derivation: foo>>
-  installers = lib.listToAttrs (map
-    (
-      fmt: {
-        name = fmt;
-        value = lib.mapAttrs (_: pkgs: let
+  installers = lib.listToAttrs (
+    map (fmt: {
+      name = fmt;
+      value = lib.mapAttrs (
+        _: pkgs:
+        let
           pkg = (import ../. { inherit pkgs lib; }).${fmt};
-        in {
+        in
+        {
           store_path = pkg;
           inherit (pkg) pname version;
-        }) systems;
-      }
-    )
-    formats);
+        }
+      ) systems;
+    }) formats
+  );
 
 in
-pkgs.runCommand "github-pages"
-{
+pkgs.runCommand "github-pages" {
   inherit installers;
   __structuredAttrs = true;
   PATH = "${pkgs.coreutils}/bin:${pkgs.python3}/bin:${pkgs.pandoc}/bin";
-  builder = builtins.toFile "builder"
-    ''
-      . .attrs.sh
-      python3 ${./pages.py} ${../README.md} .attrs.json ''${outputs[out]}
-    '';
-}
-  ""
+  builder = builtins.toFile "builder" ''
+    . .attrs.sh
+    python3 ${./pages.py} ${../README.md} .attrs.json ''${outputs[out]}
+  '';
+} ""
