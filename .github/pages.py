@@ -75,7 +75,7 @@ def main(
 
                         sha = sha256_file(output_file)
 
-                        md.append(f"    - {arch}:\n [{f}](./{arch}/{f}) `({sha})`\n")
+                        md.append(f"    - {arch}:\n [{f}](./{impl}/{arch}/{f}) `({sha})`\n")
 
             md.append("")
 
