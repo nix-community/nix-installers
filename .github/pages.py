@@ -6,10 +6,6 @@ import os.path
 import subprocess
 import shutil
 import hashlib
-from typing import (
-    Dict,
-    List,
-)
 from pathlib import Path
 
 
@@ -24,8 +20,11 @@ def sha256_file(path: Path) -> str:
 
 
 def main(
-    input_path: str, installers: Dict[str, Dict[str, Dict[str, str]]], output: str
+    input_path: str, attrs: dict[str, dict[str, dict]], output: str
 ) -> None:
+    installers = attrs["installers"]
+    impl_links = attrs["impls"]
+
     os.mkdir(output)
 
     with open(input_path) as readme_f:
@@ -50,7 +49,7 @@ def main(
             found = True
 
             for impl, impls in installers.items():
-                md.append(f"#### {impl.capitalize()}\n")
+                md.append(f"#### [{impl.capitalize()}]({impl_links[impl]})\n")
 
                 for fmt, arches in impls.items():
                     md.append(f"- {fmt.capitalize()}\n")
@@ -92,6 +91,6 @@ if __name__ == "__main__":
     output = sys.argv[3]
 
     with open(attrs_path) as f:
-        installers = json.load(f)["installers"]
+        attrs = json.load(f)
 
-    main(md_path, installers, output)
+    main(md_path, attrs, output)

@@ -11,10 +11,10 @@
 let
   inherit (lib) genAttrs attrNames;
 
-  impls = [
-    "lix"
-    "nix"
-  ];
+  impls = {
+    lix = "https://lix.systems/about/#why-lix";
+    nix = "https://nixos.org/";
+  };
 
   formats = [
     "deb"
@@ -27,7 +27,7 @@ let
     "aarch64" = pkgs.pkgsCross.aarch64-multiplatform;
   };
 
-  installers = genAttrs impls (
+  installers = genAttrs (lib.attrNames impls) (
     impl:
     genAttrs formats (
       format:
@@ -48,7 +48,7 @@ let
 
 in
 pkgs.runCommand "github-pages" {
-  inherit installers;
+  inherit impls installers;
   __structuredAttrs = true;
   PATH = "${pkgs.coreutils}/bin:${pkgs.python3}/bin:${pkgs.pandoc}/bin";
   builder = builtins.toFile "builder" ''
