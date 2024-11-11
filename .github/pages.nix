@@ -12,8 +12,8 @@ let
   inherit (lib) genAttrs attrNames;
 
   impls = [
-    "lix"
     "nix"
+    "lix"
   ];
 
   formats = [

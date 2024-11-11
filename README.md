@@ -27,28 +27,28 @@ We provide prebuilt installers at [https://nix-community.github.io/nix-installer
 
 ### Flakes
 ``` bash
-# Remote flake (Lix)
-$ nix build github:nix-community/nix-installers#lix-deb
-$ nix build github:nix-community/nix-installers#lix-pacman
-$ nix build github:nix-community/nix-installers#lix-rpm
-
 # Remote flake (Nix)
 $ nix build github:nix-community/nix-installers#nix-deb
 $ nix build github:nix-community/nix-installers#nix-pacman
 $ nix build github:nix-community/nix-installers#nix-rpm
+
+# Remote flake (Lix)
+$ nix build github:nix-community/nix-installers#lix-deb
+$ nix build github:nix-community/nix-installers#lix-pacman
+$ nix build github:nix-community/nix-installers#lix-rpm
 ```
 
 ### Classic Nix
 ``` bash
-# In a cloned repository (Lix)
-$ nix build .#lix.deb
-$ nix build .#lix.pacman
-$ nix build .#lix.rpm
-
 # In a cloned repository (Nix)
 $ nix build .#nix.deb
 $ nix build .#nix.pacman
 $ nix build .#nix.rpm
+
+# In a cloned repository (Lix)
+$ nix build .#lix.deb
+$ nix build .#lix.pacman
+$ nix build .#lix.rpm
 ```
 
 ## Contributing
