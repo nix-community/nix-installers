@@ -100,13 +100,11 @@ let
               in
               ''
                 {
-                  ${
-                    concatStringsSep "\n" (
-                      map (output: ''
-                        ${escapeNixIdentifier output}.outPath = ${escapeNixString (lib.getOutput output drv)};
-                      '') outputs
-                    )
-                  }
+                  ${concatStringsSep "\n" (
+                    map (output: ''
+                      ${escapeNixIdentifier output}.outPath = ${escapeNixString (lib.getOutput output drv)};
+                    '') outputs
+                  )}
                   outputs = [ ${concatStringsSep " " (map escapeNixString outputs)} ];
                   name = ${escapeNixString drv.name};
                   outPath = ${escapeNixString drv};
