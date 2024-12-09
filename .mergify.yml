@@ -2,7 +2,7 @@ pull_request_rules:
   - name: automatic merge for Renovate pull requests
     conditions:
       - author=renovate[bot]
-      - check-success=test
+      - check-success=collect
     actions:
       merge:
         method: rebase
