@@ -12,8 +12,14 @@ let
   inherit (lib) genAttrs attrNames;
 
   impls = {
-    lix = "https://lix.systems/about/#why-lix";
-    nix = "https://nixos.org/";
+    lix = {
+      link = "https://lix.systems/about/#why-lix";
+      description = "A fork of Nix";
+    };
+    nix = {
+      link = "https://nixos.org/";
+      description = "The official Nix implementation";
+    };
   };
 
   formats = [

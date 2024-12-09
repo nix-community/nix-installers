@@ -23,7 +23,7 @@ def main(
     input_path: str, attrs: dict[str, dict[str, dict]], output: str
 ) -> None:
     installers = attrs["installers"]
-    impl_links = attrs["impls"]
+    impl_metas = attrs["impls"]
 
     os.mkdir(output)
 
@@ -48,8 +48,11 @@ def main(
             rewriting = True
             found = True
 
-            for impl, impls in installers.items():
-                md.append(f"#### [{impl.capitalize()}]({impl_links[impl]})\n")
+            # Note: List is reversed to sort Nix ahead of Lix
+            for impl, impls in reversed(installers.items()):
+                impl_meta = impl_metas[impl]
+
+                md.append(f"#### [{impl.capitalize()}]({impl_meta['link']}) - {impl_meta['description']}\n")
 
                 for fmt, arches in impls.items():
                     md.append(f"- {fmt.capitalize()}\n")
