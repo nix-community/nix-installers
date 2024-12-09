@@ -19,18 +19,16 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def main(
-    input_path: str, attrs: dict[str, dict[str, dict]], output: str
-) -> None:
+def main(input_path: str, attrs: dict[str, dict[str, dict]], output: str) -> None:
     installers = attrs["installers"]
     impl_metas = attrs["impls"]
 
     os.mkdir(output)
 
     with open(input_path) as readme_f:
-        lines: List[str] = readme_f.read().split("\n")
+        lines: list[str] = readme_f.read().split("\n")
 
-    md: List[str] = []
+    md: list[str] = []
     rewriting = False
     found = False
     for line in lines:
@@ -52,7 +50,9 @@ def main(
             for impl, impls in reversed(installers.items()):
                 impl_meta = impl_metas[impl]
 
-                md.append(f"#### [{impl.capitalize()}]({impl_meta['link']}) - {impl_meta['description']}\n")
+                md.append(
+                    f"#### [{impl.capitalize()}]({impl_meta['link']}) - {impl_meta['description']}\n"
+                )
 
                 for fmt, arches in impls.items():
                     md.append(f"- {fmt.capitalize()}\n")
@@ -77,7 +77,9 @@ def main(
 
                         sha = sha256_file(output_file)
 
-                        md.append(f"    - {arch}:\n [{f}](./{impl}/{arch}/{f}) `({sha})`\n")
+                        md.append(
+                            f"    - {arch}:\n [{f}](./{impl}/{arch}/{f}) `({sha})`\n"
+                        )
 
             md.append("")
 
