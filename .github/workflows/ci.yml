@@ -68,7 +68,7 @@ jobs:
     needs: build-nix
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         name: nix-multi-user.deb
         path: nix-multi-user.deb
@@ -81,7 +81,7 @@ jobs:
     needs: build-lix
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         name: lix-multi-user.deb
         path: lix-multi-user.deb
