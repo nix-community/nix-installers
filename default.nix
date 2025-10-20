@@ -132,7 +132,8 @@ let
         rootPaths = [
           systemProfile
           defaultProfile
-        ] ++ optional (channel != null) channel;
+        ]
+        ++ optional (channel != null) channel;
       };
 
     in
@@ -217,8 +218,7 @@ let
             selinux
             ;
           channel = toString channel;
-          packageAfterInstall = pkgs.substituteAll {
-            src = ./hooks/after-install.sh;
+          packageAfterInstall = pkgs.replaceVars ./hooks/after-install.sh {
             inherit channelName channelURL;
           };
           packageArch = pkgs.stdenv.targetPlatform.linuxArch;
