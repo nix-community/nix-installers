@@ -36,7 +36,7 @@ jobs:
       run: nix-build --no-out-link .
     - name: Create artifact
       run: cp $(nix-build --no-out-link . -A nix.deb) nix-multi-user.deb
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: nix-multi-user.deb
         path: nix-multi-user.deb
@@ -58,7 +58,7 @@ jobs:
       run: nix-build --no-out-link .
     - name: Create artifact
       run: cp $(nix-build --no-out-link . -A lix.deb) lix-multi-user.deb
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: lix-multi-user.deb
         path: lix-multi-user.deb
@@ -68,7 +68,7 @@ jobs:
     needs: build-nix
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: nix-multi-user.deb
         path: nix-multi-user.deb
@@ -81,7 +81,7 @@ jobs:
     needs: build-lix
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: lix-multi-user.deb
         path: lix-multi-user.deb
